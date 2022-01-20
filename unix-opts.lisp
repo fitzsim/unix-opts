@@ -592,15 +592,18 @@ The output goes to STREAM."
              (terpri stream))))
     (print-part prefix)
     (when usage-of
-      (format stream "~a: ~a~a~@[ ~a~]~%~@[~a~]~%"
-              usage-of-label
-              usage-of
-              (print-opts* (+ (length usage-of-label)
-                              (length usage-of)
-                              2) ; colon and space
-                           defined-options)
-              args
-              tagline))
+      ;; Kill CLISP's *pprint-first-newline* to prevent bizarre
+      ;; newline insertion between usage-of and options summary.
+      (let ((*print-pretty* nil))
+        (format stream "~a: ~a~a~@[ ~a~]~%~@[~a~]~%"
+                usage-of-label
+                usage-of
+                (print-opts* (+ (length usage-of-label)
+                                (length usage-of)
+                                2) ; colon and space
+                             defined-options)
+                args
+                tagline)))
     (when (and (not (and usage-of brief)) defined-options)
       (format stream "~a:~%" available-options-label)
       (print-opts defined-options stream argument-block-width))
